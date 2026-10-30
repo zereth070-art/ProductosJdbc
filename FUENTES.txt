@@ -1,0 +1,175 @@
+==============================================================================
+FUENTES PARA LA PRACTICA LogisticaApp (UT02 - Spring Boot + JDBC)
+==============================================================================
+Enlaces comprobados: 2026-10-30
+Version del proyecto: Java 25 / Spring Boot 4.1.2 / Maven / H2 en fichero
+
+Orden recomendado de lectura: JDBC -> SQL -> Spring -> MVC -> Thymeleaf.
+La guia de la practica es el "que"; estas fuentes explican el "como" y el "por que".
+
+
+------------------------------------------------------------------------------
+1. JDBC (el corazon de la practica)
+------------------------------------------------------------------------------
+
+Tutorial de JDBC de Oracle (indice):
+  https://docs.oracle.com/javase/tutorial/jdbc/basics/index.html
+
+  - Connecting with DataSource Objects
+    https://docs.oracle.com/javase/tutorial/jdbc/basics/sqldatasources.html
+    Por que Spring te inyecta un DataSource y tu solo pides getConnection().
+
+  - Using Prepared Statements
+    https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html
+    Parametros "?", setInt/setString, executeQuery vs executeUpdate,
+    por que no concatenar valores (inyeccion SQL).
+
+  - Retrieving and Modifying Values from Result Sets
+    https://docs.oracle.com/javase/tutorial/jdbc/basics/retrieving.html
+    rs.next(), leer columnas por nombre, recorrer filas.
+
+  - Handling SQLExceptions
+    https://docs.oracle.com/javase/tutorial/jdbc/basics/sqlexception.html
+    Por que envolvemos todo en AccesoDatosException.
+
+  - Using Transactions (solo para entender autocommit; aqui no hacen falta)
+    https://docs.oracle.com/javase/tutorial/jdbc/basics/transactions.html
+
+Javadoc de java.sql (Java 25):
+  https://docs.oracle.com/en/java/javase/25/docs/api/java.sql/java/sql/package-summary.html
+  Consultar firmas de: Connection, PreparedStatement, Statement, ResultSet.
+  Para save: Statement.getGeneratedKeys() y RETURN_GENERATED_KEYS.
+
+try-with-resources (por que Connection va dentro del try):
+  https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
+
+
+------------------------------------------------------------------------------
+2. SQL (probar en H2 antes de pasarlo a Java)
+------------------------------------------------------------------------------
+
+SQLBolt (interactivo, JOIN, WHERE, ORDER BY, GROUP BY, LEFT JOIN):
+  https://sqlbolt.com/
+
+Gramatica de H2 (AUTO_INCREMENT, alias, LOWER, etc.):
+  https://www.h2database.com/html/grammar.html
+
+Tutorial y consola H2:
+  https://www.h2database.com/html/tutorial.html
+
+Consejo: escribe el SELECT/INSERT/UPDATE con valores literales en /h2-console,
+comprueba que devuelve lo esperado y solo despues sustituye por "?" en Java.
+
+
+------------------------------------------------------------------------------
+3. Spring (por que existen las capas)
+------------------------------------------------------------------------------
+
+Spring Framework - Data Access with JDBC:
+  https://docs.spring.io/spring-framework/reference/data-access/jdbc.html
+  No para usarlo aun: para entender que automatiza JdbcTemplate (abrir/cerrar
+  conexiones, mapear filas, traducir SQLException).
+
+Spring Boot - SQL Databases (configuracion, schema.sql, data.sql):
+  https://docs.spring.io/spring-boot/reference/data/sql.html
+  https://docs.spring.io/spring-boot/how-to/data-initialization.html
+
+Inyeccion de dependencias, @Service, @Repository:
+  https://docs.spring.io/spring-framework/reference/core/beans.html
+
+
+------------------------------------------------------------------------------
+4. Spring MVC (controladores, formularios, errores)
+------------------------------------------------------------------------------
+
+Annotated Controllers (indice):
+  https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller.html
+
+  - @Valid / BindingResult
+    https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-validation.html
+
+  - RedirectAttributes y patron PRG (Post/Redirect/Get)
+    https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/redirecting-passing-data.html
+
+  - Argumentos disponibles en un metodo de controlador
+    https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/arguments.html
+
+  - @ControllerAdvice
+    https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-advice.html
+
+  - @ExceptionHandler
+    https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-exceptionhandler.html
+
+Bean Validation (@NotBlank, @Positive, @Valid):
+  https://docs.spring.io/spring-framework/reference/core/validation.html
+  https://jakarta.ee/specifications/bean-validation/3.0/jakarta-bean-validation-spec-3.0.html
+
+
+------------------------------------------------------------------------------
+5. Thymeleaf (vistas)
+------------------------------------------------------------------------------
+
+Tutorial Thymeleaf + Spring (th:object, th:field, th:errors, #fields):
+  https://www.thymeleaf.org/doc/tutorials/3.1/thymeleafspring.html
+
+Sintaxis general (th:each, th:if, expresiones):
+  https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html
+
+
+------------------------------------------------------------------------------
+6. Lombok
+------------------------------------------------------------------------------
+
+@Data:
+  https://projectlombok.org/features/Data
+
+Constructores:
+  https://projectlombok.org/features/constructor
+
+Si un getCodigo() "no existe", mira aqui antes de tocar el codigo: casi siempre
+es que Lombok no esta procesando la clase.
+
+
+------------------------------------------------------------------------------
+7. Como estudiar sin copiar codigo (bucle de trabajo)
+------------------------------------------------------------------------------
+
+1. Escribe el SQL en la consola H2 con valores fijos. Si falla ahi, no lo
+   busques en Java.
+2. Sustituye los valores por "?" y escribe solo la parte JDBC:
+   conexion -> prepareStatement -> set... -> execute...
+3. Para leer, dibuja el mapeo: columna de la tabla -> campo del objeto.
+   Ese dibujo es tu mapRow.
+4. Implementa UN metodo y pruebalo antes de pasar al siguiente.
+   Orden natural: findById -> findAll -> delete -> update -> save.
+5. Usa las tablas de "Comprobacion" de la guia como tests manuales.
+6. Lee el Javadoc de la clase que estes usando: firma, retorno, excepciones.
+
+Metodo por archivo:
+  - FabricanteRepositoryJdbc.findById:
+      PreparedStatement + ResultSet + Optional; un solo try-with-resources.
+  - findAll: while (rs.next()) y una lista.
+  - save: RETURN_GENERATED_KEYS + asignar el codigo generado al objeto.
+  - update/delete: executeUpdate y cuidado con el orden de los indices.
+  - mapRow: leer por nombre de columna, no por posicion.
+  - ProductoRepositoryJdbc: JOIN + alias + mapRow que construye Fabricante.
+  - Controladores: @GetMapping/@PostMapping, @ModelAttribute, BindingResult,
+    RedirectAttributes (PRG) y @ControllerAdvice para errores.
+  - Formularios: th:object, th:field, th:errors, #fields.hasErrors.
+
+
+------------------------------------------------------------------------------
+8. Fuentes secundarias (con aviso)
+------------------------------------------------------------------------------
+
+- Baeldung y Stack Overflow: utiles para desatascarse, pero muchos ejemplos
+  usan JdbcTemplate, que oculta justo lo que hay que aprender en la UT02.
+- "Spring in Action" (Craig Walls): capas de datos y MVC.
+- "Effective Java" (Joshua Bloch): item del try-with-resources.
+- Cuidado con la version: el proyecto es Java 25 + Boot 4 / Framework 7.
+  Un tutorial de Boot 2 puede compilar distinto. Prioriza docs oficiales.
+
+Extra: tests de repositorio con @JdbcTest contra H2
+  https://docs.spring.io/spring-boot/reference/testing/spring-boot-applications.html
+  Escribir el test antes que el metodo obliga a decidir que debe devolver.
+==============================================================================
