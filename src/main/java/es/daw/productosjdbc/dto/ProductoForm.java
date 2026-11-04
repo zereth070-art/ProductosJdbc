@@ -31,6 +31,9 @@ public class ProductoForm {
     private Double precio;
 
     @NotNull(message = "Selecciona un fabricante")
+    private Integer stock;
+
+    @NotNull(message = "Selecciona un fabricante")
     private Integer codigoFabricante;
 
     /** Producto (modelo) → formulario (vista). Se usa al editar. */
@@ -46,6 +49,6 @@ public class ProductoForm {
     /** Formulario (vista) → Producto (modelo). Del fabricante solo tenemos el código. */
     public Producto aProducto() {
         Fabricante fabricante = new Fabricante(codigoFabricante, null);
-        return new Producto(codigo, nombre, precio, fabricante);
+        return new Producto(codigo, nombre, precio, stock, fabricante);
     }
 }

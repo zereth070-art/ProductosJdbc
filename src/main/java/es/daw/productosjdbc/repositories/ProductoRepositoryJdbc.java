@@ -21,7 +21,7 @@ public class ProductoRepositoryJdbc implements ProductoRepository {
      * Los alias (f_codigo, f_nombre) evitan la ambigüedad: las dos tablas tienen "codigo" y "nombre".
      */
     private static final String SELECT_BASE = """
-            SELECT p.codigo, p.nombre, p.precio,
+            SELECT p.codigo, p.nombre, p.precio, 
                    f.codigo AS f_codigo, f.nombre AS f_nombre
             FROM producto p
             JOIN fabricante f ON p.codigo_fabricante = f.codigo
@@ -91,13 +91,14 @@ public class ProductoRepositoryJdbc implements ProductoRepository {
     // ---------------------------------------------------------------- UPDATE
     @Override
     public void update(Producto producto) {
-        String sql = "UPDATE producto SET nombre = ?, precio = ?, codigo_fabricante = ? WHERE codigo = ?";
+        String sql = "UPDATE producto SET nombre = ?, precio = ?, stock = ?, codigo_fabricante = ? WHERE codigo = ?";
         try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, producto.getNombre());
             ps.setDouble(2, producto.getPrecio());
-            ps.setInt(3, producto.getFabricante().getCodigo());
-            ps.setInt(4, producto.getCodigo());
+            ps.setInt(3, producto.getStock());
+            ps.setInt(4, producto.getFabricante().getCodigo());
+            ps.setInt(5, producto.getCodigo());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new AccesoDatosException("Error al actualizar el producto " + producto.getCodigo(), e);
@@ -143,6 +144,7 @@ public class ProductoRepositoryJdbc implements ProductoRepository {
                 rs.getInt("codigo"),
                 rs.getString("nombre"),
                 rs.getDouble("precio"),
+                rs.getInt("stock"),
                 fabricante);
     }
 }

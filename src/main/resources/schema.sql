@@ -13,6 +13,7 @@ CREATE TABLE producto (
     codigo            INT          AUTO_INCREMENT PRIMARY KEY,
     nombre            VARCHAR(100) NOT NULL,
     precio            DOUBLE       NOT NULL,
+    stock             INT          NOT NULL,
     codigo_fabricante INT          NOT NULL,
     CONSTRAINT fk_producto_fabricante
         FOREIGN KEY (codigo_fabricante) REFERENCES fabricante (codigo)

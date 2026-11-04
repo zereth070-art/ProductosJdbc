@@ -34,6 +34,7 @@
             <td th:text="${p.codigo}">1</td>
             <td th:text="${p.nombre}">Nombre</td>
             <td th:text="${#numbers.formatDecimal(p.precio, 1, 2, 'POINT')}">0.00</td>
+            <td th:text="${p.stock}">0.00</td>
             <!-- Navegamos por el objeto: Producto → Fabricante → nombre -->
             <td th:text="${p.fabricante.nombre}">Fabricante</td>
             <td>
